@@ -583,7 +583,7 @@ bot.on('callback_query', async (callbackQuery) => {
             bot.sendMessage(chatId, joke);
         } catch (error) {
             console.error('Error fetching joke:', error.response ? error.response.data : error.message);
-            bot.sendMessage(chatId, 'حدثت مشكلة أثناء جلب النكتة. الرجاء المحاولة مرة أخرى لاحقًا.');
+            bot.sendMessage(chatId, 'حدثت مشكلة أثناء جلب النكتة. الرجاء المحاولة مرة أخرى لاحقًا😁.');
         }
     } else if (data === 'get_love_message') {
         try {
@@ -603,7 +603,7 @@ bot.on('callback_query', async (callbackQuery) => {
             bot.sendMessage(chatId, love);
         } catch (error) {
             console.error('Error fetching love message:', error.response ? error.response.data : error.message);
-            bot.sendMessage(chatId, 'حدثت مشكلة أثناء جلب الرسالة. الرجاء المحاولة مرة أخرى لاحقًا.');
+            bot.sendMessage(chatId, 'حدثت مشكلة أثناء جلب الرسالة. الرجاء المحاولة مرة أخرى لاحق😁ًا.');
         }
     } else if (data === 'add_vip' && chatId == 5739065274) {
         bot.sendMessage(chatId, 'الرجاء إرسال معرف المستخدم لإضافته كـ VIP:');
@@ -1102,23 +1102,26 @@ initStorage().then(() => {
 // وظيفة لحفظ حالة استخدام الروابط
 const clearTemporaryStorage = () => {
     // الكود الخاص بحذف الذاكرة المؤقتة
+    console.log('تصفير الذاكرة المؤقتة...');
 };
 
-// حذف الذاكرة المؤقتة كل 20 دقيقة
+// حذف الذاكرة المؤقتة كل دقيقتين
 setInterval(() => {
     clearTemporaryStorage();
     console.log('تم حذف الذاكرة المؤقتة.');
-}, 20 * 60 * 1000); // 20 دقيقة بالميلي ثانية
-process.on('exit', () => saveLinkUsage());
-process.on('SIGINT', () => {
-    saveLinkUsage();
-    process.exit();
-});
-process.on('SIGTERM', () => {
-    saveLinkUsage();
-    process.exit();
-});
-process.on('SIGHUP', () => {
-    saveLinkUsage();
-    process.exit();
-});
+}, 2 * 60 * 1000); // 2 دقيقة بالميلي ثانية
+
+const handleExit = () => {
+    saveLinkUsage().then(() => {
+        console.log('تم حفظ حالة استخدام الروابط.');
+        process.exit();
+    }).catch(err => {
+        console.error('حدث خطأ أثناء حفظ حالة استخدام الروابط:', err);
+        process.exit(1); // إنهاء مع رمز خطأ
+    });
+};
+
+process.on('exit', handleExit);
+process.on('SIGINT', handleExit);
+process.on('SIGTERM', handleExit);
+process.on('SIGHUP', handleExit);
