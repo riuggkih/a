@@ -574,7 +574,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 messages: [{ role: 'user', content: jokeMessage }]
             }, {
                 headers: {
-                    'Authorization': 'Bearer sk-proj-4O8YZ13mjOgGArgY9OjAT3BlbkFJfWHgbXVSUtDcx1HjvcXt',
+                    'Authorization': 'Bearer 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',
                     'Content-Type': 'application/json'
                 }
             });
@@ -594,7 +594,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 messages: [{ role: 'user', content: loveMessage }]
             }, {
                 headers: {
-                    'Authorization': 'Bearer sk-proj-4O8YZ13mjOgGArgY9OjAT3BlbkFJfWHgbXVSUtDcx1HjvcXt',
+                    'Authorization': 'Bearer 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',
                     'Content-Type': 'application/json'
                 }
             });
